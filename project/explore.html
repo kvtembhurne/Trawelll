@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Destinations</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <a href="index.html" class="logo">Travel Companion</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="explore.html">Explore</a></li>
+                <li><a href="donate.html">Donate</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <button class="floating-button" onclick="scrollToTop()">↑</button>
+
+    <!-- Explore Section -->
+    <main>
+        <section class="explore">
+            <h1>Explore Popular Destinations</h1>
+            <div class="card-container">
+                <div class="card">
+                    <h2>Heritage Site A</h2>
+                    <p>A historical site with rich cultural significance.</p>
+                    <p><strong>Recommended Routes:</strong> Bus, Auto, Metro</p>
+                </div>
+                <div class="card">
+                    <h2>Museum B</h2>
+                    <p>Learn about local history, artifacts, and art exhibitions.</p>
+                    <p><strong>Recommended Routes:</strong> Metro, Auto</p>
+                </div>
+                <div class="card">
+                    <h2>Park C</h2>
+                    <p>A serene park for relaxation and nature walks.</p>
+                    <p><strong>Recommended Routes:</strong> Bus, Auto</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Map Container -->
+        <div id="map" style="height: 500px; width: 100%; margin-top: 20px;"></div>
+        
+        <!-- Controls for Location Input and Adding Marker -->
+        <div class="controls" style="text-align: center; margin-top: 10px;">
+            <input type="text" id="location" placeholder="Enter location name" />
+            <button id="addMarker">Add Marker</button>
+        </div>
+    </main>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // Initialize the map and set its view to a specific latitude and longitude (centered on India)
+        const map = L.map('map').setView([20.5937, 78.9629], 5); // Centered on India, zoom level 5
+
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19,
+        }).addTo(map);
+
+        // Add a default marker for demonstration (New Delhi)
+        L.marker([28.6139, 77.2090]) // Coordinates for New Delhi
+            .addTo(map)
+            .bindPopup('New Delhi<br>Capital of India.')
+            .openPopup();
+
+        // Functionality: Add marker based on user input (Geocoding)
+        function addMarker() {
+            const location = document.getElementById('location').value;
+            if (location) {
+                // Fetch geolocation data from Nominatim (OpenStreetMap)
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${location}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.length > 0) {
+                            const lat = data[0].lat;
+                            const lon = data[0].lon;
+
+                            // Add a marker at the specified location
+                            L.marker([lat, lon])
+                                .addTo(map)
+                                .bindPopup(`${location}<br>Latitude: ${lat}, Longitude: ${lon}`)
+                                .openPopup();
+
+                            // Re-center the map to the new location
+                            map.setView([lat, lon], 10);
+                        } else {
+                            alert('Location not found! Please try another.');
+                        }
+                    })
+                    .catch(err => console.error('Error:', err));
+            } else {
+                alert('Please enter a location!');
+            }
+        }
+
+        // Add event listener to "Add Marker" button
+        document.getElementById('addMarker').addEventListener('click', addMarker);
+
+        // Add event listener to "Enter" key on the input field to add marker
+        document.getElementById('location').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Prevent form submission if inside a form
+                addMarker(); // Call the addMarker function
+            }
+        });
+
+        // Smooth Scroll for Anchor Links (optional, if you have anchor links)
+        document.querySelectorAll('a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                if (this.getAttribute('href').startsWith('#')) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Scroll-to-Top Functionality (optional)
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+    </script>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Travel Companion. Crafted with ❤.</p>
+    </footer>
+</body>
+</html>
